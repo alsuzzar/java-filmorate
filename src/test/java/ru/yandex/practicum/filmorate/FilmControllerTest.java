@@ -132,7 +132,7 @@ public class FilmControllerTest {
 
         Film film2 = new Film();
         film2.setName("Name2");
-        film2.setDescription ("This is the second film, and it is intentionally described in much greater detail " +
+        film2.setDescription("This is the second film, and it is intentionally described in much greater detail " +
                         "to reach the required length, adding extra context, atmosphere, and narrative elements " +
                         "to make the description too long");
         film2.setDuration(200);
@@ -314,7 +314,7 @@ public class FilmControllerTest {
         Film film2 = new Film();
         film2.setId(1L);
         film2.setName("Name2");
-        film2.setDescription ("This is the second film, and it is intentionally described in much greater detail " +
+        film2.setDescription("This is the second film, and it is intentionally described in much greater detail " +
                         "to reach the required length, adding extra context, atmosphere, and narrative elements " +
                         "to make the description too long");
         film2.setDuration(200);
