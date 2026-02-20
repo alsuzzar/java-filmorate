@@ -97,7 +97,7 @@ public class UserController {
         }
 
         if (newUser.getBirthday() != null) {
-            if (newUser.getBirthday().isAfter(LocalDate.now())){
+            if (newUser.getBirthday().isAfter(LocalDate.now())) {
                 log.warn("Обновление. Некорректная дата рождения");
                 throw new ConditionsNotMetException("Обновление. Некорректная дата рождения");
             }
