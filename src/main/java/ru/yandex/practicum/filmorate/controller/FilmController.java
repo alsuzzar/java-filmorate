@@ -16,9 +16,9 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
 
-    private final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
+    private final LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
     private final Map<Long, Film> films = new HashMap<>();
-    int MAX_LENGTH = 200;
+    int maxLength = 200;
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -36,15 +36,15 @@ public class FilmController {
             log.warn("Создание фильма. Пустое описание");
             throw new ConditionsNotMetException("Описание не может быть пустым");
         }
-        if (film.getDescription().length() >= MAX_LENGTH) {
+        if (film.getDescription().length() >= maxLength) {
             log.warn("Создание фильма. Описание слишком длинное");
             throw new ConditionsNotMetException("Описание слишком длинное");
         }
-        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(minReleaseDate)) {
             log.warn("Создание фильма. Некорректная дата релиза");
             throw new ConditionsNotMetException("Некорректная дата релиза");
         }
-        if (film.getDuration() == null || film.getDuration()<=0) {
+        if (film.getDuration() == null || film.getDuration() <= 0) {
             log.warn("Создание фильма. Некорректная продолжительность");
             throw new ConditionsNotMetException("Некорректная продолжительность");
         }
@@ -85,21 +85,21 @@ public class FilmController {
         }
 
         if (newFilm.getDescription() != null) {
-            if (newFilm.getDescription().isBlank() || newFilm.getDescription().length() > MAX_LENGTH) {
+            if (newFilm.getDescription().isBlank() || newFilm.getDescription().length() > maxLength) {
                 log.warn("Обновление фильма. Некорректное описание");
                 throw new ConditionsNotMetException("Некорректное описание");
             }
         }
 
         if (newFilm.getReleaseDate() != null) {
-            if (newFilm.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+            if (newFilm.getReleaseDate().isBefore(minReleaseDate)) {
                 log.warn("Обновление фильма. Некорректная дата релиза");
                 throw new ConditionsNotMetException("Некорректная дата релиза");
             }
         }
 
         if (newFilm.getDuration() != null) {
-            if (newFilm.getDuration()<=0) {
+            if (newFilm.getDuration() <= 0) {
                 log.warn("Обновление фильма. Некорректная продолжительность");
                 throw new ConditionsNotMetException("Некорректная продолжительность");
             }
