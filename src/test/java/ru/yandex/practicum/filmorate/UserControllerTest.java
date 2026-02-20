@@ -209,6 +209,7 @@ public class UserControllerTest {
         assertEquals("Name1", user1.getName());
         assertEquals("Name2", user2.getName());
     }
+
     @Test
     void shouldUpdateUser() {
         User user = createTestUser();
