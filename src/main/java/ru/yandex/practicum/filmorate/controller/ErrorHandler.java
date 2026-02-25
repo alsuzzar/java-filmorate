@@ -35,16 +35,21 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(ConditionsNotMetException.class)
-    public ResponseEntity<String> handleConditionsNotMetException(ConditionsNotMetException ex) {
+    public ResponseEntity<Map<String, String>> handleConditionsNotMetException(ConditionsNotMetException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error",ex.getMessage());
 
         log.warn("Ошибка условий: {}", ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
+    public ResponseEntity<Map<String, String>> handleNotFoundException(NotFoundException ex) {
 
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error",ex.getMessage());
         log.warn("Ошибка нахождения: {}", ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
     }
 }
