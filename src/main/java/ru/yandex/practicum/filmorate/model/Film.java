@@ -32,6 +32,7 @@ public class Film implements Comparable<Film> {
     Integer duration;
 
     private Set<Long> likes = new HashSet<>();
+
     public void likeFilm(Long userId) {
         likes.add(userId);
     }
