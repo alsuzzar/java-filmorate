@@ -1,72 +1,66 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private final Map<Long, Film> films = new HashMap<>();
+    private final FilmStorage storage;
+    private final FilmService service;
+
+
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable Long id) {
+        return storage.getFilmById(id);
+    }
 
     @GetMapping
     public Collection<Film> findAll() {
-        return films.values();
+        return storage.findAll();
+    }
+
+    @GetMapping("/popular") //возвращает список из первых count фильмов по количеству лайков.
+    // Если значение параметра count не задано, верните первые 10
+    public List<Film> getMostPopularFilms(@RequestParam(required = false) Integer count) {
+        List<Film> all = service.getMostPopularFilms();
+        if (count == null) {
+            return all;
+        }
+        int limit = Math.min(all.size(), count);
+        return new ArrayList<>(all.subList(0, limit));
     }
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        film.setId(getNextFilmId());
-        films.put(film.getId(), film);
-        log.info("Фильм {} с id {} успешно добавлен", film.getName(), film.getId());
-        return film;
-    }
-
-    private long getNextFilmId() {
-        long currentMaxFilmId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxFilmId;
+        return storage.createFilm(film);
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film newFilm) {
-        if (newFilm.getId() == null) {
-            log.warn("Id для обновления не указан");
-            throw new ConditionsNotMetException("Id должен быть указан");
-        }
-        if (!films.containsKey(newFilm.getId())) {
-            log.warn("Фильм с id {} не найден", newFilm.getId());
-            throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
-        }
+        return storage.updateFilm(newFilm);
+    }
 
-        Film oldFilm = films.get(newFilm.getId());
+    @PutMapping("/{id}/like/{userId}") //пользователь ставит лайк фильму.
+    public void likeFilm(@PathVariable Long id, @PathVariable Long userId) {
+        service.likeFilm(id, userId);
+    }
 
-        if (newFilm.getName() != null) {
-            oldFilm.setName(newFilm.getName());
-        }
-        if (newFilm.getDescription() != null) {
-            oldFilm.setDescription(newFilm.getDescription());
-        }
-        if (newFilm.getReleaseDate() != null) {
-            oldFilm.setReleaseDate(newFilm.getReleaseDate());
-        }
-        if (newFilm.getDuration() != null) {
-            oldFilm.setDuration(newFilm.getDuration());
-        }
-        log.info("Фильм {} с id {} успешно обновлен", oldFilm.getName(), oldFilm.getId());
-        return oldFilm;
+    @DeleteMapping("/{id}/like/{userId}")
+    public Map<String, String> removeLike(@PathVariable Long id, @PathVariable Long userId) {
+        service.removeLike(id, userId);
+        return Map.of("message", "ok");
     }
 }
 
