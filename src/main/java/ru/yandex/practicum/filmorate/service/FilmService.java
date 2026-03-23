@@ -31,10 +31,10 @@ public class FilmService {
     }
 
     public void validateId(Long userId, Long filmId) {
-        if (filmId==null) {
+        if (filmId == null) {
             throw new ConditionsNotMetException("id фильма не указан");
         }
-        if (userId==null) {
+        if (userId == null) {
             throw new ConditionsNotMetException("id пользователя не указан");
         }
 
@@ -44,7 +44,7 @@ public class FilmService {
         List<Film> all = new ArrayList<>(storage.findAll());
         List<Film> mostPopular = new ArrayList<>();
         Collections.sort(all);
-        for (int i=0; i < all.size() && i < 10; i++) {
+        for (int i = 0; i < all.size() && i < 10; i++) {
             mostPopular.add(all.get(i));
         }
         return mostPopular;
