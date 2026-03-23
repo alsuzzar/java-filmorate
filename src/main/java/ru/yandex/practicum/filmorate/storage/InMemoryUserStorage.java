@@ -70,7 +70,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public void deleteUser(Long id) {
-        if (id==null) {
+        if (id == null) {
             throw new ConditionsNotMetException("id не указан");
         }
         if (!users.containsKey(id)) {
@@ -80,7 +80,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public User getUserById(Long id) {
-        if (id==null) {
+        if (id == null) {
             throw new ConditionsNotMetException("id не указан");
         }
         if (!users.containsKey(id)) {

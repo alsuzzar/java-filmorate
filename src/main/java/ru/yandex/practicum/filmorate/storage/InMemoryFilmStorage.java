@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
 
     public Collection<Film> findAll() {
@@ -64,7 +64,7 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     public void deleteFilm(Long id) {
-        if (id==null) {
+        if (id == null) {
             throw new ConditionsNotMetException("id не указан");
         }
         if (!films.containsKey(id)) {
@@ -74,7 +74,7 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     public Film getFilmById(Long id) {
-        if (id==null) {
+        if (id == null) {
             throw new ConditionsNotMetException("id не указан");
         }
         if (!films.containsKey(id)) {
