@@ -7,16 +7,29 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Slf4j
 @Service
 public class UserService {
     private final UserStorage storage;
+
+    public User getUserById(Long id) {
+        return storage.getUserById(id);
+    }
+
+    public Collection<User> findAll() {
+        return storage.findAll();
+    }
+
+    public User createUser(User user) {
+        return storage.createUser(user);
+    }
+
+    public User updateUser(User newUser) {
+        return storage.updateUser(newUser);
+    }
 
     public void addFriend(Long userId, Long friendId) {
         validateIds(userId, friendId);

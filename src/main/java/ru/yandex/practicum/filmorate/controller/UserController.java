@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,17 +15,16 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserStorage storage;
     private final UserService service;
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable Long id) {
-        return storage.getUserById(id);
+    public User getUserById(@PathVariable Long id) {
+        return service.getUserById(id);
     }
 
     @GetMapping
     public Collection<User> findAll() {
-        return storage.findAll();
+        return service.findAll();
     }
 
     @GetMapping("/{id}/friends") //возвращаем список пользователей, являющихся его друзьями
@@ -41,12 +39,12 @@ public class UserController {
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        return storage.createUser(user);
+        return service.createUser(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User newUser) {
-        return storage.updateUser(newUser);
+        return service.updateUser(newUser);
     }
 
     @PutMapping("/{id}/friends/{friendId}") // добавление в друзья

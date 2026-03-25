@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -16,37 +15,38 @@ public class FilmService {
     private final FilmStorage storage;
     private final UserStorage userStorage;
 
+    public Film getFilmById(Long id) {
+      return storage.getFilmById(id);
+    }
+
+    public Collection<Film> findAll() {
+        return storage.findAll();
+    }
+
+    public Film createFilm(Film film) {
+        return storage.createFilm(film);
+    }
+
+    public Film updateFilm(Film newFilm) {
+        return storage.updateFilm(newFilm);
+    }
+
     public void likeFilm(Long filmId, Long userId) {
-        validateId(userId, filmId);
         userStorage.getUserById(userId);
         Film film = storage.getFilmById(filmId);
         film.likeFilm(userId);
     }
 
     public void removeLike(Long filmId, Long userId) {
-        validateId(filmId, userId);
         userStorage.getUserById(userId);
         Film film = storage.getFilmById(filmId);
         film.removeLike(userId);
     }
 
-    public void validateId(Long userId, Long filmId) {
-        if (filmId == null) {
-            throw new ConditionsNotMetException("id фильма не указан");
-        }
-        if (userId == null) {
-            throw new ConditionsNotMetException("id пользователя не указан");
-        }
-
-    }
-
-    public List<Film> getMostPopularFilms() {
+    public List<Film> getMostPopularFilms(Integer count) {
         List<Film> all = new ArrayList<>(storage.findAll());
-        List<Film> mostPopular = new ArrayList<>();
-        Collections.sort(all);
-        for (int i = 0; i < all.size() && i < 10; i++) {
-            mostPopular.add(all.get(i));
-        }
-        return mostPopular;
+        all.sort(null);
+        int limit = Math.min(all.size(), count);
+        return new ArrayList<>(all.subList(0, limit));
     }
 }
