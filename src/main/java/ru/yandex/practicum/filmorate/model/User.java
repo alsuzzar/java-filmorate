@@ -4,21 +4,33 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
-    Long id;
+    private Long id;
 
     @Email
     @NotBlank
-    String email;
+    private String email;
 
     @NotBlank
     @Pattern(regexp = "\\S+")
-    String login;
-    String name;
+    private String login;
+    private String name;
 
     @NotNull
     @PastOrPresent
-    LocalDate birthday;
+    private LocalDate birthday;
+
+    private Set<Long> friends = new HashSet<>();
+
+    public void addFriend(Long id) {
+        friends.add(id);
+    }
+
+    public void removeFriend(Long id) {
+        friends.remove(id);
+    }
 }

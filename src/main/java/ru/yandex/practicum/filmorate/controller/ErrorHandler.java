@@ -52,4 +52,13 @@ public class ErrorHandler {
         log.warn("Ошибка нахождения: {}", ex.getMessage());
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleOtherException(Exception ex) {
+
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error",ex.getMessage());
+        log.error("Ошибка: {}", ex.getMessage());
+        return new ResponseEntity<>(errors, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

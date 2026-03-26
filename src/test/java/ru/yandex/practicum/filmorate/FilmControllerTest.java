@@ -6,6 +6,10 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -14,12 +18,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmControllerTest {
-    FilmController filmControllerTest;
+    FilmStorage filmStorage;
+    FilmService filmService;
+    FilmController filmController;
+    UserStorage userStorage;
     Collection<Film> testFilmList;
 
     @BeforeEach
     void setUp() {
-        filmControllerTest = new FilmController();
+        filmStorage = new InMemoryFilmStorage();
+        filmService = new FilmService(filmStorage, userStorage);
+        filmController = new FilmController(filmService);
     }
 
     Film createTestFilm() {
@@ -28,7 +37,7 @@ public class FilmControllerTest {
         film.setDescription("This is the film");
         film.setDuration(175);
         film.setReleaseDate(LocalDate.of(1991, 1, 1));
-        filmControllerTest.createFilm(film);
+        filmController.createFilm(film);
         return film;
     }
 
@@ -46,9 +55,9 @@ public class FilmControllerTest {
         film2.setDuration(120);
         film2.setReleaseDate(LocalDate.of(2000, 1, 1));
 
-        filmControllerTest.createFilm(film1);
-        filmControllerTest.createFilm(film2);
-        testFilmList = filmControllerTest.findAll();
+        filmController.createFilm(film1);
+        filmController.createFilm(film2);
+        testFilmList = filmController.findAll();
         assertEquals(2, testFilmList.size());
         assertEquals(1, film1.getId());
         assertEquals(2, film2.getId());
@@ -67,8 +76,8 @@ public class FilmControllerTest {
         film2.setDuration(120);
         film2.setReleaseDate(LocalDate.of(2000, 1, 1));
 
-        Film updatedFilm = filmControllerTest.updateFilm(film2);
-        testFilmList = filmControllerTest.findAll();
+        Film updatedFilm = filmController.updateFilm(film2);
+        testFilmList = filmController.findAll();
         assertEquals(1, testFilmList.size());
         assertEquals(1, updatedFilm.getId());
         assertEquals("Name2", updatedFilm.getName());
@@ -88,9 +97,9 @@ public class FilmControllerTest {
         film3.setReleaseDate(LocalDate.of(2000, 1, 1));
 
         assertThrows(NotFoundException.class,
-                () -> filmControllerTest.updateFilm(film3));
+                () -> filmController.updateFilm(film3));
 
-        testFilmList = filmControllerTest.findAll();
+        testFilmList = filmController.findAll();
         assertEquals(1, testFilmList.size());
         assertEquals(1, film.getId());
         assertEquals("Name1", film.getName());
@@ -106,9 +115,9 @@ public class FilmControllerTest {
         film3.setReleaseDate(LocalDate.of(2000, 1, 1));
 
         assertThrows(ConditionsNotMetException.class,
-                () -> filmControllerTest.updateFilm(film3));
+                () -> filmController.updateFilm(film3));
 
-        testFilmList = filmControllerTest.findAll();
+        testFilmList = filmController.findAll();
         assertEquals(1, testFilmList.size());
         assertEquals(1, film.getId());
         assertEquals("Name1", film.getName());

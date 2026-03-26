@@ -6,6 +6,9 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -14,7 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserControllerTest {
-    UserController userControllerTest;
+
+    UserStorage userStorage;
+    UserService userService;
+    UserController userController;
     Collection<User> testUserList;
 
     User createTestUser() {
@@ -24,13 +30,15 @@ public class UserControllerTest {
         user.setLogin("login1");
         user.setName("Name1");
         user.setBirthday(LocalDate.of(1991, 1, 1));
-        userControllerTest.createUser(user);
+        userController.createUser(user);
         return user;
     }
 
     @BeforeEach
     void setUp() {
-        userControllerTest = new UserController();
+        userStorage = new InMemoryUserStorage();
+        userService = new UserService(userStorage);
+        userController = new UserController(userService);
     }
 
     @Test
@@ -47,9 +55,9 @@ public class UserControllerTest {
         user2.setName("Name2");
         user2.setBirthday(LocalDate.of(1990, 1, 1));
 
-        userControllerTest.createUser(user1);
-        userControllerTest.createUser(user2);
-        testUserList = userControllerTest.findAll();
+        userController.createUser(user1);
+        userController.createUser(user2);
+        testUserList = userController.findAll();
         assertEquals(2, testUserList.size());
         assertEquals(1, user1.getId());
         assertEquals(2, user2.getId());
@@ -76,10 +84,10 @@ public class UserControllerTest {
         user3.setName("Name3");
         user3.setBirthday(LocalDate.of(1992, 3, 3));
 
-        userControllerTest.createUser(user1);
-        userControllerTest.createUser(user2);
-        userControllerTest.createUser(user3);
-        testUserList = userControllerTest.findAll();
+        userController.createUser(user1);
+        userController.createUser(user2);
+        userController.createUser(user3);
+        testUserList = userController.findAll();
         assertEquals(3, testUserList.size());
         assertEquals(1, user1.getId());
         assertEquals(2, user2.getId());
@@ -100,8 +108,8 @@ public class UserControllerTest {
         user2.setName("Name2");
         user2.setBirthday(LocalDate.of(2000, 1, 1));
 
-        User updatedUser = userControllerTest.updateUser(user2);
-        testUserList = userControllerTest.findAll();
+        User updatedUser = userController.updateUser(user2);
+        testUserList = userController.findAll();
         assertEquals(1, testUserList.size());
         assertEquals(1, updatedUser.getId());
         assertEquals("Name2", updatedUser.getName());
@@ -122,9 +130,9 @@ public class UserControllerTest {
         user2.setBirthday(LocalDate.of(2000, 1, 1));
 
         assertThrows(NotFoundException.class,
-                () -> userControllerTest.updateUser(user2));
+                () -> userController.updateUser(user2));
 
-        testUserList = userControllerTest.findAll();
+        testUserList = userController.findAll();
         assertEquals(1, testUserList.size());
         assertEquals(1, user.getId());
         assertEquals("Name1", user.getName());
@@ -141,9 +149,9 @@ public class UserControllerTest {
         user2.setBirthday(LocalDate.of(2000, 1, 1));
 
         assertThrows(ConditionsNotMetException.class,
-                () -> userControllerTest.updateUser(user2));
+                () -> userController.updateUser(user2));
 
-        testUserList = userControllerTest.findAll();
+        testUserList = userController.findAll();
         assertEquals(1, testUserList.size());
         assertEquals(1, user.getId());
         assertEquals("Name1", user.getName());
@@ -158,8 +166,8 @@ public class UserControllerTest {
         user2.setLogin("login2");
         user2.setName("Name2");
 
-        User updatedUser = userControllerTest.updateUser(user2);
-        testUserList = userControllerTest.findAll();
+        User updatedUser = userController.updateUser(user2);
+        testUserList = userController.findAll();
         assertEquals(1, testUserList.size());
         assertEquals(1, updatedUser.getId());
         assertEquals("Name2", updatedUser.getName());
@@ -179,8 +187,8 @@ public class UserControllerTest {
         user2.setName("");
         user2.setBirthday(LocalDate.of(2000, 1, 1));
 
-        User updatedUser = userControllerTest.updateUser(user2);
-        testUserList = userControllerTest.findAll();
+        User updatedUser = userController.updateUser(user2);
+        testUserList = userController.findAll();
         assertEquals(1, testUserList.size());
         assertEquals(1, updatedUser.getId());
         assertEquals("login2", updatedUser.getName());
