@@ -51,7 +51,7 @@ public class UserService {
         validateIds(receiverId, senderId);
         User receiver = storage.getUserById(receiverId);
         User sender = storage.getUserById(senderId);
-        Map <Long, FriendshipStatus> friendshipList = sender.getFriends();
+        Map<Long, FriendshipStatus> friendshipList = sender.getFriends();
 
         if (!friendshipList.containsKey(receiverId)) {
             throw new NotFoundException("Заявка в друзья не найдена");
