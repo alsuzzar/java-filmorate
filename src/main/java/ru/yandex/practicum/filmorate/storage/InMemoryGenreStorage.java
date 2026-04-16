@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class InMemoryGenreStorage implements GenreStorage{
+public class InMemoryGenreStorage implements GenreStorage {
     private final Map<Long, Genre> genres = new HashMap<>();
 
     public Genre getGenreById(Long id) {
