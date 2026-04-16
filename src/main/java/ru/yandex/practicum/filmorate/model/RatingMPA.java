@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 
 @Getter

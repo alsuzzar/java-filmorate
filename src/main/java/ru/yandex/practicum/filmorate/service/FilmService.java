@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
@@ -47,6 +46,7 @@ public class FilmService {
         }
         film.setGenres(validatedGenres);
         RatingMPA mpa = film.getMpa();
+
         if (mpa == null) {
             throw new ConditionsNotMetException("рейтинг не указан");
         }
@@ -72,6 +72,7 @@ public class FilmService {
         }
         newFilm.setGenres(validatedGenres);
         RatingMPA mpa = newFilm.getMpa();
+
         if (mpa == null) {
             throw new ConditionsNotMetException("рейтинг не указан");
         }
