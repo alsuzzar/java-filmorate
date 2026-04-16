@@ -2,9 +2,12 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -24,10 +27,11 @@ public class User {
     @PastOrPresent
     private LocalDate birthday;
 
-    private Set<Long> friends = new HashSet<>();
+    @Getter
+    private Map<Long, FriendshipStatus> friends = new HashMap<>();
 
-    public void addFriend(Long id) {
-        friends.add(id);
+    public void addFriend(Long id, FriendshipStatus friendshipStatus) {
+        friends.put(id, friendshipStatus);
     }
 
     public void removeFriend(Long id) {
