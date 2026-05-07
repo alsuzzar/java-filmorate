@@ -4,8 +4,6 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 public class User {
@@ -23,14 +21,4 @@ public class User {
     @NotNull
     @PastOrPresent
     private LocalDate birthday;
-
-    private Set<Long> friends = new HashSet<>();
-
-    public void addFriend(Long id) {
-        friends.add(id);
-    }
-
-    public void removeFriend(Long id) {
-        friends.remove(id);
-    }
 }

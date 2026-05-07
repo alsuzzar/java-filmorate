@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.Setter;
 import ru.yandex.practicum.filmorate.controller.ReleaseDateConstraint;
 
 import java.time.LocalDate;
@@ -31,15 +32,14 @@ public class Film implements Comparable<Film> {
     @NotNull
     Integer duration;
 
+    @Setter
+    private RatingMPA mpa;
+
+    @Setter
     private Set<Long> likes = new HashSet<>();
 
-    public void likeFilm(Long userId) {
-        likes.add(userId);
-    }
-
-    public void removeLike(Long userId) {
-        likes.remove(userId);
-    }
+    @Setter
+    private Set<Genre> genres = new HashSet<>();
 
     @Override
     public int compareTo(Film otherFilm) {

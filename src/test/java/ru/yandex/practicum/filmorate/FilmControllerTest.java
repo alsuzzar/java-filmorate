@@ -6,10 +6,9 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -22,13 +21,17 @@ public class FilmControllerTest {
     FilmService filmService;
     FilmController filmController;
     UserStorage userStorage;
+    GenreStorage genreStorage;
+    RatingMPADbStorage mpaStorage;
     Collection<Film> testFilmList;
+    RatingMPA g;
 
     @BeforeEach
     void setUp() {
         filmStorage = new InMemoryFilmStorage();
-        filmService = new FilmService(filmStorage, userStorage);
+        filmService = new FilmService(filmStorage, userStorage, genreStorage);
         filmController = new FilmController(filmService);
+        g = new RatingMPA();
     }
 
     Film createTestFilm() {
@@ -36,6 +39,7 @@ public class FilmControllerTest {
         film.setName("Name1");
         film.setDescription("This is the film");
         film.setDuration(175);
+        film.setMpa(g);
         film.setReleaseDate(LocalDate.of(1991, 1, 1));
         filmController.createFilm(film);
         return film;
@@ -47,12 +51,14 @@ public class FilmControllerTest {
         film1.setName("Name1");
         film1.setDescription("This is the first film");
         film1.setDuration(175);
+        film1.setMpa(g);
         film1.setReleaseDate(LocalDate.of(1991, 2, 2));
 
         Film film2 = new Film();
         film2.setName("Name2");
         film2.setDescription("This is the second film");
         film2.setDuration(120);
+        film2.setMpa(g);
         film2.setReleaseDate(LocalDate.of(2000, 1, 1));
 
         filmController.createFilm(film1);
@@ -74,6 +80,7 @@ public class FilmControllerTest {
         film2.setName("Name2");
         film2.setDescription("This is the updated film");
         film2.setDuration(120);
+        film2.setMpa(g);
         film2.setReleaseDate(LocalDate.of(2000, 1, 1));
 
         Film updatedFilm = filmController.updateFilm(film2);
@@ -94,6 +101,7 @@ public class FilmControllerTest {
         film3.setId(2L);
         film3.setName("Name3");
         film3.setDescription("This is the third film");
+        film3.setMpa(g);
         film3.setReleaseDate(LocalDate.of(2000, 1, 1));
 
         assertThrows(NotFoundException.class,
@@ -112,6 +120,7 @@ public class FilmControllerTest {
         Film film3 = new Film();
         film3.setName("Name3");
         film3.setDescription("This is the third film");
+        film3.setMpa(g);
         film3.setReleaseDate(LocalDate.of(2000, 1, 1));
 
         assertThrows(ConditionsNotMetException.class,

@@ -13,5 +13,8 @@ public interface FilmStorage {
     void deleteFilm(Long id);
 
     Film getFilmById(Long id);
+
+    void likeFilm(Long userId, Long filmId);
+
+    void removeLike(Long userId, Long filmId);
 }
-/* методы добавления, удаления и модификации объектов. */
