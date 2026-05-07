@@ -8,4 +8,10 @@ public interface GenreStorage {
     Genre getGenreById(Long id);
 
     Collection<Genre> findAll();
+
+    Genre createGenre(Genre genre);
+
+    Genre updateGenre(Genre newGenre);
+
+    void deleteGenre(Long id);
 }

@@ -35,18 +35,11 @@ public class Film implements Comparable<Film> {
     @Setter
     private RatingMPA mpa;
 
+    @Setter
     private Set<Long> likes = new HashSet<>();
 
     @Setter
     private Set<Genre> genres = new HashSet<>();
-
-    public void likeFilm(Long userId) {
-        likes.add(userId);
-    }
-
-    public void removeLike(Long userId) {
-        likes.remove(userId);
-    }
 
     @Override
     public int compareTo(Film otherFilm) {

@@ -1,23 +1,25 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-import static ru.yandex.practicum.filmorate.model.FriendshipStatus.*;
-
-@RequiredArgsConstructor
 @Slf4j
 @Service
 public class UserService {
+
     private final UserStorage storage;
+
+    public UserService(@Qualifier("userDbStorage") UserStorage storage) {
+        this.storage = storage;
+    }
 
     public User getUserById(Long id) {
         return storage.getUserById(id);
@@ -35,77 +37,50 @@ public class UserService {
         return storage.updateUser(newUser);
     }
 
-    public void addFriend(Long senderId, Long receiverId) {
-        validateIds(senderId, receiverId);
-        User sender = storage.getUserById(senderId);
-        if (sender.getFriends().get(receiverId) == UNCONFIRMED) {
-            throw new ConditionsNotMetException("заявка уже отправлена");
-        }
-        if (sender.getFriends().get(receiverId) == CONFIRMED) {
-            throw new ConditionsNotMetException("пользователь уже в друзьях");
-        }
-        sender.addFriend(receiverId, UNCONFIRMED);
-    }
+    public void addFriend(Long userId, Long friendId) {
+        validateIds(userId, friendId);
 
-    public void confirmFriendship(Long receiverId, Long senderId) {
-        validateIds(receiverId, senderId);
-        User receiver = storage.getUserById(receiverId);
-        User sender = storage.getUserById(senderId);
-        Map<Long, FriendshipStatus> friendshipList = sender.getFriends();
-
-        if (!friendshipList.containsKey(receiverId)) {
-            throw new NotFoundException("Заявка в друзья не найдена");
+        storage.getUserById(userId);
+        storage.getUserById(friendId);
+        List<Long> friends = storage.getFriendIds(userId);
+        if (friends.contains(friendId)) {
+            throw new ConditionsNotMetException("уже в друзьях");
         }
-        if (friendshipList.get(receiverId) == CONFIRMED) {
-            throw new ConditionsNotMetException("Друг уже добавлен");
-        }
-        sender.addFriend(receiverId, CONFIRMED);
-        receiver.addFriend(senderId, CONFIRMED);
+        storage.addFriend(userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
         validateIds(userId, friendId);
-        User user = storage.getUserById(userId);
-        User friend = storage.getUserById(friendId);
-        user.removeFriend(friendId);
-        friend.removeFriend(userId);
+        storage.getUserById(userId);
+        storage.getUserById(friendId);
+        storage.removeFriend(userId, friendId);
     }
 
     public List<User> getCommonUsers(Long userId, Long otherUserId) {
         validateIds(userId, otherUserId);
-        List<User> commonFriends = new ArrayList<>();
-        User user = storage.getUserById(userId);
-        User otherUser = storage.getUserById(otherUserId);
+        storage.getUserById(userId);
+        storage.getUserById(otherUserId);
+        List<Long> userFriends = storage.getFriendIds(userId);
+        List<Long> otherFriends = storage.getFriendIds(otherUserId);
 
-        Set<Long> userConfirmedIds = new HashSet<>();
-        Set<Long> otherUserConfirmedIds = new HashSet<>();
-        for (Map.Entry<Long, FriendshipStatus> entry : user.getFriends().entrySet()) {
-            if (entry.getValue() == CONFIRMED) {
-                userConfirmedIds.add(entry.getKey());
-            }
-        }
-        for (Map.Entry<Long, FriendshipStatus> entry : otherUser.getFriends().entrySet()) {
-            if (entry.getValue() == CONFIRMED) {
-                otherUserConfirmedIds.add(entry.getKey());
-            }
-        }
-        userConfirmedIds.retainAll(otherUserConfirmedIds);
+        userFriends.retainAll(otherFriends);
 
-        for (Long id : userConfirmedIds) {
-            User commonFriend = storage.getUserById(id);
-            commonFriends.add(commonFriend);
+        List<User> result = new ArrayList<>();
+        for (Long id : userFriends) {
+            result.add(storage.getUserById(id));
         }
-        return commonFriends;
+        return result;
     }
 
     public List<User> getFriendsList(Long userId) {
         if (userId == null) {
             throw new ConditionsNotMetException("пользователь user не указан");
         }
-        Set<Long> friendsIds = storage.getUserById(userId).getFriends().keySet();
-        ArrayList<User> friendsList = new ArrayList<>();
-        for (Long i : friendsIds) {
-            User friend = storage.getUserById(i);
+        storage.getUserById(userId);
+        List<Long> friendsIds = storage.getFriendIds(userId);
+        List<User> friendsList = new ArrayList<>();
+        for (Long id : friendsIds) {
+            User friend = storage.getUserById(id);
             friendsList.add(friend);
         }
         return friendsList;
