@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -7,12 +8,11 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
+    private final Map<Long, Set<Long>> friendships = new HashMap<>();
 
     public User createUser(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
@@ -20,6 +20,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
         user.setId(getNextUserId());
         users.put(user.getId(), user);
+        friendships.put(user.getId(), new HashSet<>());
         log.info("Пользователь {} с id {} успешно добавлен", user.getName(), user.getId());
         return user;
     }
@@ -76,7 +77,12 @@ public class InMemoryUserStorage implements UserStorage {
         if (!users.containsKey(id)) {
             throw new NotFoundException("Пользователь не найден");
         }
-       users.remove(id);
+        users.remove(id);
+        friendships.remove(id);
+
+        for (Set<Long> friends : friendships.values()) {
+            friends.remove(id);
+        }
     }
 
     public User getUserById(Long id) {
@@ -88,5 +94,40 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return users.get(id);
     }
+
+    public void addFriend(Long userId, Long friendId) {
+        if (!users.containsKey(userId) || !users.containsKey(friendId)) {
+            throw new NotFoundException("Нет записи");
+        }
+
+        friendships.putIfAbsent(userId, new HashSet<>());
+
+        Set<Long> friends = friendships.get(userId);
+
+        if (friends.contains(friendId)) {
+            throw new ConditionsNotMetException("Связь уже существует");
+        }
+
+        friends.add(friendId);
+    }
+
+    public void removeFriend(Long userId, Long friendId) {
+        Set<Long> friends = friendships.get(userId);
+
+        if (friends == null || !friends.contains(friendId)) {
+            throw new NotFoundException("Нет записи");
+        }
+
+        friends.remove(friendId);
+    }
+
+    public List<Long> getFriendIds(Long userId) {
+        Set<Long> friends = friendships.get(userId);
+
+        if (friends == null) {
+            return new ArrayList<>();
+        }
+
+        return new ArrayList<>(friends);
+    }
 }
-/*  перенесите туда всю логику хранения, обновления и поиска объектов.*/

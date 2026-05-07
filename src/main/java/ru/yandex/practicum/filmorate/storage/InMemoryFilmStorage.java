@@ -6,9 +6,7 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -82,7 +80,17 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         return films.get(id);
     }
+
+    Set<Long> filmLikes;
+
+    public void likeFilm(Long filmId, Long userId) {
+        filmLikes = new HashSet<>();
+        filmLikes.add(userId);
+    }
+
+    public void removeLike(Long filmId, Long userId) {
+        filmLikes.remove(userId);
+    }
 }
 
 
-/*  перенесите туда всю логику хранения, обновления и поиска объектов.  */

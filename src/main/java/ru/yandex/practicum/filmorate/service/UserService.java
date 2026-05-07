@@ -1,19 +1,25 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-@RequiredArgsConstructor
 @Slf4j
 @Service
 public class UserService {
+
     private final UserStorage storage;
+
+    public UserService(@Qualifier("userDbStorage") UserStorage storage) {
+        this.storage = storage;
+    }
 
     public User getUserById(Long id) {
         return storage.getUserById(id);
@@ -33,42 +39,48 @@ public class UserService {
 
     public void addFriend(Long userId, Long friendId) {
         validateIds(userId, friendId);
-        User user = storage.getUserById(userId);
-        User friend = storage.getUserById(friendId);
-        user.addFriend(friendId);
-        friend.addFriend(userId);
+
+        storage.getUserById(userId);
+        storage.getUserById(friendId);
+        List<Long> friends = storage.getFriendIds(userId);
+        if (friends.contains(friendId)) {
+            throw new ConditionsNotMetException("уже в друзьях");
+        }
+        storage.addFriend(userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
         validateIds(userId, friendId);
-        User user = storage.getUserById(userId);
-        User friend = storage.getUserById(friendId);
-        user.removeFriend(friendId);
-        friend.removeFriend(userId);
+        storage.getUserById(userId);
+        storage.getUserById(friendId);
+        storage.removeFriend(userId, friendId);
     }
 
-    public List<User> getCommonUsers(Long userId, Long otherId) {
-        validateIds(userId, otherId);
-        List<User> commonFriends = new ArrayList<>();
-        User user = storage.getUserById(userId);
-        User friend = storage.getUserById(otherId);
-        Set<Long> commonIds = new HashSet<>(user.getFriends());
-        commonIds.retainAll(friend.getFriends());
-        for (Long id : commonIds) {
-            User commonFriend = storage.getUserById(id);
-            commonFriends.add(commonFriend);
+    public List<User> getCommonUsers(Long userId, Long otherUserId) {
+        validateIds(userId, otherUserId);
+        storage.getUserById(userId);
+        storage.getUserById(otherUserId);
+        List<Long> userFriends = storage.getFriendIds(userId);
+        List<Long> otherFriends = storage.getFriendIds(otherUserId);
+
+        userFriends.retainAll(otherFriends);
+
+        List<User> result = new ArrayList<>();
+        for (Long id : userFriends) {
+            result.add(storage.getUserById(id));
         }
-        return commonFriends;
+        return result;
     }
 
     public List<User> getFriendsList(Long userId) {
         if (userId == null) {
             throw new ConditionsNotMetException("пользователь user не указан");
         }
-        Set<Long> friendsIds = storage.getUserById(userId).getFriends();
-        ArrayList<User> friendsList = new ArrayList<>();
-        for (Long i : friendsIds) {
-            User friend = storage.getUserById(i);
+        storage.getUserById(userId);
+        List<Long> friendsIds = storage.getFriendIds(userId);
+        List<User> friendsList = new ArrayList<>();
+        for (Long id : friendsIds) {
+            User friend = storage.getUserById(id);
             friendsList.add(friend);
         }
         return friendsList;
